@@ -5,10 +5,10 @@ var LICENSES_CSV = "data/alcohol_locations.csv";
 var map;
 
 var activeLine;
-var width = 1100;
-var height = 650;
-var margin = 10;
-var svgContainer = d3.select("body").append("svg")
+var margin = 20;
+var height = Math.max(400,$( window ).height()) - margin;
+var width = Math.min(height,$( window ).width()) - margin;
+var svgContainer = d3.select("#canvas").append("svg")
                                      .attr("width", width)
                                      .attr("height", height);
 
@@ -30,6 +30,9 @@ var loadCSVs = function(){
 		    return 0;
 		});
 		rows = rows.filter(function(d){
+			var tmp= d.X;
+			d.X=d.Y;
+			d.Y=tmp;
 			return d['License_Ty'] < 22 
 		});
 		console.log(rows.length);
@@ -37,11 +40,11 @@ var loadCSVs = function(){
 		var xScale = d3.scale.linear()
                      .domain([d3.min(rows, function(d) { return d.X; })
                      	, d3.max(rows, function(d) { return d.X; })])
-                     .range([2*margin, width - margin]);
+                     .range([margin, width - margin]);
 		var yScale = d3.scale.linear()
                      .domain([d3.min(rows, function(d) { return d.Y; }), 
                      	d3.max(rows, function(d) { return d.Y; })])
-                     .range([margin, height - margin]);
+                     .range([0, height-margin]);
 
 		var multiplier = 2400;
 		var color = d3.scale.category20();
@@ -61,8 +64,8 @@ var loadCSVs = function(){
 				return getDelay(d,i);
 				})// off of year.
 				.attr("fill",function(d,i){return color(d.zip);})
-		    .attr("cy", function(d) { return xScale(d.X); })
-		    .attr("cx", function(d) { return yScale(d.Y); })
+		    .attr("cx", function(d) { return xScale(d.X); })
+		    .attr("cy", function(d) { return yScale(d.Y); })
 		    .attr("r", function(d) { return 2;});
 
 		if(window.location.hash.indexOf("timeline")>=0){
