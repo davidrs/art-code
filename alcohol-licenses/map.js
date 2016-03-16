@@ -5,16 +5,19 @@ var LICENSES_CSV = "data/alcohol_locations.csv";
 var map;
 
 var activeLine;
-
+var width = 1100;
+var height = 650;
+var margin = 10;
 var svgContainer = d3.select("body").append("svg")
-                                     .attr("width", 1000)
-                                     .attr("height", 700);
+                                     .attr("width", width)
+                                     .attr("height", height);
 
 var svg = d3.select("svg");
 
 
 // Setup the leaflet map and legend;
 var setupMap = function(){
+	drawTitle();
 	loadCSVs();
 };
 
@@ -30,7 +33,16 @@ var loadCSVs = function(){
 			return d['License_Ty'] < 22 
 		});
 		console.log(rows.length);
-		console.log(rows[0], rows[23])
+		console.log(rows[0], rows[23]);
+		var xScale = d3.scale.linear()
+                     .domain([d3.min(rows, function(d) { return d.X; })
+                     	, d3.max(rows, function(d) { return d.X; })])
+                     .range([2*margin, width - margin]);
+		var yScale = d3.scale.linear()
+                     .domain([d3.min(rows, function(d) { return d.Y; }), 
+                     	d3.max(rows, function(d) { return d.Y; })])
+                     .range([margin, height - margin]);
+
 		var multiplier = 2400;
 		var color = d3.scale.category20();
 		firstYear = rows[0].Orig_Iss_D.split('/')[0];
@@ -40,18 +52,17 @@ var loadCSVs = function(){
 		    .data(rows)
 		  .enter()
 	      .append("circle")
-	      // Filter to license types.
-		    .attr("cx", function(d) { return ((-d.X *10000) % 2) < 1?0:1000; })
-		    .attr("r", function(d) { return 0;})
+		    .attr("cx", function(d) { return  ((d.X)*multiplier) % 2 < 1?0 : 1000; })
 		    .attr("cy", function(d) {return  ((d.Y)*multiplier) % 2 < 1?0 : 1000; })
-
-		  	.transition().duration(function(d,i){return Math.min(9000, 4000+i*200)})//function(d){return d.X*50;})
+		    .attr("r", function(d) { return 0;})
+		  	.transition()
+		  	.duration(function(d,i){return Math.min(9000, 4000+i*200)})//function(d){return d.X*50;})
 			.delay(function(d,i){	
 				return getDelay(d,i);
 				})// off of year.
 				.attr("fill",function(d,i){return color(d.zip);})
-		    .attr("cy", function(d) { return  ((d.Y)*multiplier) % multiplier - 1600; })
-		    .attr("cx", function(d) { return -1* ((d.X)*multiplier) % multiplier - 700; })
+		    .attr("cy", function(d) { return xScale(d.X); })
+		    .attr("cx", function(d) { return yScale(d.Y); })
 		    .attr("r", function(d) { return 2;});
 
 		if(window.location.hash.indexOf("timeline")>=0){
@@ -63,7 +74,32 @@ var loadCSVs = function(){
 var getDelay = function(d,i){
 	var year = +d.Orig_Iss_D.split('/')[0];
 	//	console.log(year-firstYear);
-	return (year-firstYear) * (year<1976?500+20*i:1000) + (+d.Orig_Iss_D.split('/')[1])*30
+	return (year - firstYear) * (year < 1976 ? 500 + 20 * i : 1000) + (+d.Orig_Iss_D.split('/')[1])*30
+}
+
+var drawTitle = function(){
+    var text = svgContainer.append('text')
+     .attr("x", width/2 - 45)
+     .attr("y", height/2 - 40)
+     .attr("font-family", "sans-serif")
+	 .attr("fill", "white")
+     .attr("font-size", "25px")
+     .text("SF Alcohol licenses")
+     .style("opacity", 1)	         
+     .transition().duration(4000)
+     .style("opacity", 0);
+
+    var text = svgContainer.append('text')
+     .attr("x", width/2)
+     .attr("y", height/2)
+     .attr("font-family", "sans-serif")
+	 .attr("fill", "white")
+     .attr("font-size", "25px")
+     .text("1949-2003")
+     .style("opacity", 1)	         
+     .transition().duration(5500).delay(1500)
+     .style("opacity", 0);
+
 }
 
 var drawLine = function(rows, firstYear){
