@@ -13,7 +13,7 @@ var svgContainer = d3.select("#canvas").append("svg")
                                      .attr("height", height);
 
 var svg = d3.select("svg");
-var global_delay = 1000;
+var global_delay = 900;
 
 
 // Setup the leaflet map and legend;
@@ -62,7 +62,7 @@ var loadCSVs = function(){
 		  .enter()
 	      .append("circle")
 		    .attr("cx", function(d) { return  ((d.X)*multiplier) % 2 < 1?0 : 1000; })
-		    .attr("cy", function(d) {return  ((d.Y)*multiplier) % 2 < 1?0 : 1000; })
+		    .attr("cy", function(d) { return  ((-d.Y)*multiplier) % 2 < 1?0 : 1000; })
 		    .attr("r", function(d) { return 0;})
 		  	.transition()
 		  	.duration(function(d,i){return Math.min(9000, 4000+i*200)})//function(d){return d.X*50;})
