@@ -13,12 +13,17 @@ var svgContainer = d3.select("#canvas").append("svg")
                                      .attr("height", height);
 
 var svg = d3.select("svg");
+var global_delay = 1000;
 
 
 // Setup the leaflet map and legend;
 var setupMap = function(){
 	drawTitle();
 	loadCSVs();
+
+	if(window.location.hash.indexOf("fast")>=0){
+		global_delay = 100;
+	}
 };
 
 
@@ -78,7 +83,7 @@ var loadCSVs = function(){
 var getDelay = function(d,i){
 	var year = +d.Orig_Iss_D.split('/')[0];
 	//	console.log(year-firstYear);
-	return (year - firstYear) * (year < 1976 ? 500 + 20 * i : 1000) + (+d.Orig_Iss_D.split('/')[1])*30
+	return (year - firstYear) * (year < 1976 ? global_delay/2 + 20 * i : global_delay) + (+d.Orig_Iss_D.split('/')[1])*30
 }
 
 var drawTitle = function(){
@@ -146,7 +151,7 @@ var drawLine = function(rows, firstYear){
       .attr("stroke-dasharray", totalLength + " " + totalLength)
       .attr("stroke-dashoffset", totalLength)
       .transition()
-        .duration(rows.length * 30 + (2013 - firstYear) * 800)
+        .duration(rows.length * 30*(global_delay/1000) + (2013 - firstYear) * global_delay*.8)
         .ease("linear")
         .attr("stroke-dashoffset", 0);
 
