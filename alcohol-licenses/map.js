@@ -35,6 +35,7 @@ var loadCSVs = function(){
 			d.Y=tmp;
 			return d['License_Ty'] < 22 
 		});
+		devRows = rows; // intentional global for row debugging.
 		console.log(rows.length);
 		console.log(rows[0], rows[23]);
 		var xScale = d3.scale.linear()
@@ -98,7 +99,7 @@ var drawTitle = function(){
      .attr("font-family", "sans-serif")
 	 .attr("fill", "white")
      .attr("font-size", "25px")
-     .text("1949-2003")
+     .text("1949-2013")
      .style("opacity", 1)	         
      .transition().duration(5500).delay(1500)
      .style("opacity", 0);
