@@ -1,5 +1,5 @@
 var LICENSES_CSV = "data/alcohol_locations.csv";
-
+//var LICENSES_CSV = "data/poposStripped.csv";
 
 // Leaflet map object.
 var map;
@@ -13,7 +13,7 @@ var svgContainer = d3.select("#canvas").append("svg")
                                      .attr("height", height);
 
 var svg = d3.select("svg");
-var global_delay = 900;
+var global_delay = 500;
 
 
 // Setup the leaflet map and legend;
@@ -38,7 +38,11 @@ var loadCSVs = function(){
 			var tmp= d.X;
 			d.X=d.Y;
 			d.Y=tmp;
-			return d['License_Ty'] < 22 
+			if (d['License_Ty']){
+				return d['License_Ty'] < 22 ;
+			}else{
+				return true;
+			}
 		});
 		devRows = rows; // intentional global for row debugging.
 		console.log(rows.length);
@@ -61,15 +65,15 @@ var loadCSVs = function(){
 		    .data(rows)
 		  .enter()
 	      .append("circle")
-		    .attr("cx", function(d) { return  ((d.X)*multiplier) % 2 < 1?0 : 1000; })
-		    .attr("cy", function(d) { return  ((-d.Y)*multiplier) % 2 < 1?0 : 1000; })
+		    .attr("cx", function(d) { return  ((d.X)*multiplier) % 2 < 1 ? 0 : 1000; })
+		    .attr("cy", function(d) { return  ((-d.Y)*multiplier) % 2 < 1 ? 0 : 1000; })
 		    .attr("r", function(d) { return 0;})
 		  	.transition()
-		  	.duration(function(d,i){return Math.min(9000, 4000+i*200)})//function(d){return d.X*50;})
+		  	.duration(function(d,i){return Math.min(9000, 3000 + i*200)})//function(d){return d.X*50;})
 			.delay(function(d,i){	
 				return getDelay(d,i);
-				})// off of year.
-				.attr("fill",function(d,i){return color(d.zip);})
+				})
+			.attr("fill",function(d,i){return color(d.zip);})
 		    .attr("cx", function(d) { return xScale(d.X); })
 		    .attr("cy", function(d) { return yScale(d.Y); })
 		    .attr("r", function(d) { return 2;});
@@ -82,8 +86,11 @@ var loadCSVs = function(){
 
 var getDelay = function(d,i){
 	var year = +d.Orig_Iss_D.split('/')[0];
-	//	console.log(year-firstYear);
-	return (year - firstYear) * (year < 1976 ? global_delay/2 + 20 * i : global_delay) + (+d.Orig_Iss_D.split('/')[1])*30
+	if (year<1976){
+		return 1500 + i*250;
+	}
+	return (year - firstYear) *  global_delay/1.2
+		+ (+d.Orig_Iss_D.split('/')[1])*30 - 4000;
 }
 
 var drawTitle = function(){
@@ -112,25 +119,11 @@ var drawTitle = function(){
 }
 
 var drawLine = function(rows, firstYear){
-	    //Add the SVG Text Element to the svgContainer
-		var text = svgContainer.selectAll("text")
-                        .data(rows)
-                        .enter()
-	                    .append("text");
-
-		//Add SVG Text Element Attributes
-		/*
-		var textLabel = svgContainer.selectAll("text")
-                 .attr("x", function(d,i){return i*30})
-                 .attr("y", 20)
-                 .text('text')
-                 .attr("font-family", "sans-serif")
-                 .attr("font-size", "15px")
-                 .text( function (d) { return d.Orig_Iss_D; })
-			     .style("opacity", 0)	         
-                 .transition().duration(9000).delay(function(d,i){return i*1000;})
-				.style("opacity", 1)
-    				*/
+    //Add the SVG Text Element to the svgContainer
+	var text = svgContainer.selectAll("text")
+                    .data(rows)
+                    .enter()
+                    .append("text");
 
 	var line = d3.svg.line()
       .interpolate("cardinal")	   
