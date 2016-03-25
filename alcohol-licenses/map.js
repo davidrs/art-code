@@ -73,7 +73,7 @@ var loadCSVs = function(){
 			.attr("fill",function(d,i){return color(d.zip);})
 		    .attr("cx", function(d) { return xScale(d.X); })
 		    .attr("cy", function(d) { return yScale(d.Y); })
-		    .attr("r", function(d) { return 2);});
+		    .attr("r", function(d) { return 2;});
 
 		if(window.location.hash.indexOf("timeline")>=0){
 			drawLine(rows, firstYear);
